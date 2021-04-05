@@ -1,0 +1,44 @@
+# Deshabilitar la exploración de directorios
+  Options All -Indexes
+
+# ----------------------------------------------------------------------
+# Rewrite engine
+# ----------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks
+  RewriteEngine On
+
+  # Se debe de indicar el nuevo directorio como base.
+  RewriteBase ../public
+
+  # Redirigir barras finales...
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+  # Redirirgir "www.example.com -> example.com".
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+
+  # Comprueba si el usuario está intentando acceder a un archivo válido,
+  # como una imagen o un documento css, si esto no es cierto, envía el
+  # solicitud al controlador frontal, index.php
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([\s\S]*)$ index.php?url=$1 [L,NC,QSA]
+
+  # Asegúrese de que el encabezado de autorización se transmita.
+  RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+  # Si no tenemos mod_rewrite instalado, todos los 404
+  # se pueden enviar a index.php, y todo funciona normalmente.
+  ErrorDocument 404 index.php
+</IfModule>
+
+#Deshabilitar el inicio de la firma del servidor.
+  ServerSignature Off
