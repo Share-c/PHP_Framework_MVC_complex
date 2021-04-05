@@ -1,0 +1,24 @@
+# Deshabilitar la exploración de directorios
+  Options All -Indexes
+
+# ----------------------------------------------------------------------
+# Rewrite engine
+# ----------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks
+  RewriteEngine On
+
+  # Redirigir a la carpeta pública.
+  RewriteRule ^$ public/ [L]
+  RewriteRule (.*) public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+  # Si no tenemos mod_rewrite instalado, todos los 404
+  # se pueden enviar a index.php, y todo funciona normalmente.
+  ErrorDocument 404 index.php
+</IfModule>
+
+#Deshabilitar el inicio de la firma del servidor.
+  ServerSignature Off
